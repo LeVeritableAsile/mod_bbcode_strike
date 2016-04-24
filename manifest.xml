@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension engine="1.0">
+	<id>mod_bbcode_strike</id>
+	<title>Strike bbcode</title>
+	<version>1.1</version>
+	<description>Strike text when [s]text[/s] is matched.</description>
+	<author>David Keller &amp; Rain</author>
+	<minversion>1.4.4</minversion>
+	<maxtestedon>1.4.4</maxtestedon>
+	<install>
+	</install>
+
+	<hooks>
+		<hook id="ps_start"><![CDATA[
+function handle_s_tag($text)
+{
+	return forum_trim("<s>$text</s>");
+}
+		]]></hook>
+
+		<hook id="ps_preparse_tags_start"><![CDATA[
+$tags[] = $tags_opened[] = $tags_closed[] = $tags_inline[] = $tags_fix[] = 's';
+$tags_limit_bbcode['*'][] = 's';
+$tags_limit_bbcode['url'][] = 's';
+$tags_limit_bbcode['email'][] = 's';
+		]]></hook>
+
+		<hook id="ps_do_bbcode_replace"><![CDATA[
+$pattern_callback[] = '#\[s\]([^\[]+)\[/s\]#';
+$replace_callback[] = 'handle_s_tag($matches[1])';
+		]]></hook>
+
+        <!-- pun_bbcode - add button -->
+		<hook id="pun_bbcode_pre_buttons_output"><![CDATA[
+$this->add_button(array('name' => 'strike', 'title' => 'strike', 'tag' => 's', 'image' => true));
+		]]></hook>
+
+		<!-- pun_bbcode - add styles for button -->
+		<hook id="pun_bbcode_styles_loaded"><![CDATA[
+if ($forum_user['pun_bbcode_use_buttons'] == '1') {
+    $button_strike_css = '#pun_bbcode_bar #pun_bbcode_button_strike.image { background: url("'.$ext_info['url'].'/strike.png") 50% 50% no-repeat; }';
+    $forum_loader->add_css($button_strike_css, array('type' => 'inline'));
+}
+        ]]></hook>
+	</hooks>
+</extension>
